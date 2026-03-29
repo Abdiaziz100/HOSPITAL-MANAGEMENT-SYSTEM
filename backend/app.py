@@ -10,6 +10,10 @@ from urllib.parse import quote_plus
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'hospital-secret-key-change-in-prod'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "pool_pre_ping": True,
+    "pool_recycle": 280
+}
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'hospital-management-system-jwt-secret-key-32-chars')
 
 # Database config
@@ -580,3 +584,4 @@ if __name__ == '__main__':
     print("Login: admin / admin123")
     app.run(debug=True, host='0.0.0.0', port=5000)
 
+SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
