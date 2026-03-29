@@ -23,7 +23,7 @@ if os.environ.get('DATABASE_URL'):
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 else:
     # Local SQLite
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/abdiaziz-mahat/HOSPITAL-MANAGEMENT-SYSTEM/backend/instance/hospital.db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/hospital.db'
 
 db = SQLAlchemy(app)
 
