@@ -26,7 +26,21 @@ else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/abdiaziz-mahat/HOSPITAL-MANAGEMENT-SYSTEM/backend/instance/hospital.db'
 
 db = SQLAlchemy(app)
+
 jwt = JWTManager(app)
+
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    db.session.remove()
+
+@app.before_request
+def before_request():
+    try:
+        db.session.execute(db.text("SELECT 1"))
+    except:
+        db.engine.dispose()
+        db.session.remove()
+
 
 # CORS for Vercel domains
 cors_origins = os.environ.get('CORS_ORIGINS', '*').split(',')
@@ -519,8 +533,12 @@ def create_admin_user():
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
+        try:
+            db.create_all()
+        except Exception as e:
+            print(f"Database creation warning (may already exist): {e}")
         create_admin_user()
+
         
         # Create sample data if none exists
         if Patient.query.count() == 0:
