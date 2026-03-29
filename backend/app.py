@@ -10,6 +10,10 @@ from urllib.parse import quote_plus
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'hospital-secret-key-change-in-prod'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "pool_pre_ping": True,
+    "pool_recycle": 280
+}
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'hospital-management-system-jwt-secret-key-32-chars')
 
 # Database config
@@ -22,7 +26,21 @@ else:
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////home/abdiaziz-mahat/HOSPITAL-MANAGEMENT-SYSTEM/backend/instance/hospital.db'
 
 db = SQLAlchemy(app)
+
 jwt = JWTManager(app)
+
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    db.session.remove()
+
+@app.before_request
+def before_request():
+    try:
+        db.session.execute(db.text("SELECT 1"))
+    except:
+        db.engine.dispose()
+        db.session.remove()
+
 
 # CORS for Vercel domains
 cors_origins = os.environ.get('CORS_ORIGINS', '*').split(',')
@@ -515,8 +533,12 @@ def create_admin_user():
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
+        try:
+            db.create_all()
+        except Exception as e:
+            print(f"Database creation warning (may already exist): {e}")
         create_admin_user()
+
         
         # Create sample data if none exists
         if Patient.query.count() == 0:
@@ -579,4 +601,5 @@ if __name__ == '__main__':
     print("🏥 Hospital Management System Ready!")
     print("Login: admin / admin123")
     app.run(debug=True, host='0.0.0.0', port=5000)
+
 
