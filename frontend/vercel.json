@@ -1,1 +1,8 @@
-{}
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://hospital-management-system-2-c5ey.onrender.com/api/:path*"
+    }
+  ]
+}
