@@ -584,4 +584,4 @@ if __name__ == '__main__':
     print("Login: admin / admin123")
     app.run(debug=True, host='0.0.0.0', port=5000)
 
-SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
+
